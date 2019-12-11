@@ -1,0 +1,5 @@
+*.o
+*.so
+*.pyd
+libdependencies.a
+__pycache__/

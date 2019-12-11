@@ -1,0 +1,38 @@
+! Note: the context of this file is case sensitive.
+
+python module python__user__routines
+    interface
+        subroutine fun(n, x, iflag, fvec)
+            intent(callback, hide) fun
+            integer, optional, intent(hide), check(len(x)>=n), depend(x) :: n=len(x)
+            double precision dimension(n), intent(in, copy) :: x
+            integer intent(in, out) :: iflag
+            double precision dimension(n), intent(out, copy), depend(n) :: fvec
+        end subroutine fun
+    end interface
+end python module python__user__routines
+python module _minpack
+    interface
+        subroutine root(n, x, tol, info)
+            use python__user__routines
+            integer, optional, intent(hide), check(len(x)>=n), depend(x) :: n=len(x)
+            double precision dimension(n), intent(in, out, copy) :: x
+            double precision intent(in) :: tol
+            integer intent(out) :: info
+            intent(callback, hide) fun
+            external fun
+        end subroutine root
+        subroutine hybrd1(n, x, fvec, tol, info, wa, lwa)
+            use python__user__routines
+            integer, optional, check(len(x)>=n), depend(x) :: n=len(x)
+            double precision dimension(n) :: x
+            double precision dimension(n), depend(n) :: fvec
+            double precision :: tol
+            integer :: info
+            double precision dimension(lwa) :: wa
+            integer, optional, check(len(wa)>=lwa), depend(wa) :: lwa=len(wa)
+            intent(callback, hide) fun
+            external fun
+        end subroutine hybrd1
+    end interface
+end python module _minpack
